@@ -11,6 +11,7 @@ pygame.display.set_icon(icon)
 playerimg = pygame.image.load("space.png")
 px = 370
 py = 500
+pc = 0
 
 new_width = 80
 new_height = 80
@@ -28,7 +29,19 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    px -= 0.2 # causes the spaceship to move left 
-    # each time the while loop runs : 370 - 0.2 
+        #if keystroke is pressed, check if its right or left
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT:
+                print("left arrow is pressed")
+                pc = 0.2
+            if event.key == pygame.K_RIGHT:
+                print("right arrow is pressed")
+                pc = -0.2
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                pc = 0 # stop the ship once the key is released
+                print("Keystroke has been released")
+
+    px += pc
     player(px, py)
     pygame.display.update()
