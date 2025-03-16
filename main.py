@@ -19,11 +19,20 @@ px = 370
 py = 500
 pc = 0
 
-enemyimg = pygame.image.load("enemy.png")
-ex = random.randint(0, 710)
-ey = random.randint(10, 100)
-exc = 0.2 
-eyc = 40
+enemyimg = [pygame.image.load("enemy.png"), pygame.image.load("enemy.png"), pygame.image.load("enemy1.png"), pygame.image.load("enemy1.png"), pygame.image.load("alien.png"), pygame.image.load("alien.png")]
+ex = []
+ey = []
+exc = []
+eyc = []
+enemyResized  = []
+ 
+num_of_enemies = 6
+for i in range(num_of_enemies):
+    enemyResized.append(pygame.transform.scale(enemyimg[i], (80, 80)))
+    ex.append(random.randint(0, 710))
+    ey.append(random.randint(10, 100))
+    exc.append(0.2)
+    eyc.append(40)
 
 # bullet
 # read - you cant see the bullet on screen
@@ -32,7 +41,7 @@ bulletimg = pygame.image.load("missile.png")
 bx = 0
 by = 500
 bxc = 0
-byc = 0.5
+byc = 1
 bullet_state = "ready"
 
 score = 0
@@ -47,13 +56,13 @@ def fire_bullet(x, y):
 new_width = 80
 new_height = 80
 image_resized = pygame.transform.scale(playerimg, (new_width, new_height))
-enemyResized  = pygame.transform.scale(enemyimg, (new_width, new_height))
+
 
 def player(x, y):
     screen.blit(image_resized, (x, y))
 
-def enemy(x, y):
-    screen.blit(enemyResized, (x, y))
+def enemy(x, y, i):
+    screen.blit(enemyResized[i], (x, y))
 
 def isCollision(ex, ey, bx, by):
     distance = math.sqrt(math.pow((ex - bx),2) + math.pow((ey - by),2))
@@ -78,11 +87,11 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
                 print("left arrow is pressed")
-                pc = - 0.2
+                pc = - 0.3
                 
             if event.key == pygame.K_RIGHT:
                 print("right arrow is pressed")
-                pc = 0.2
+                pc = 0.3
 
             if event.key == pygame.K_SPACE:
                 if bullet_state is "ready":
@@ -104,14 +113,28 @@ while running:
     elif px >= 720:
         px = 720
 
-    ex += exc
+   
     # enemy movement
-    if ex <= 0:
-        exc = 0.2
-        ey += eyc
-    elif ex >= 720:
-        exc = -0.2
-        ey += eyc
+    for i in range(num_of_enemies):
+        ex[i] += exc[i]
+        if ex[i] <= 0:
+            exc[i] = 0.2
+            ey[i] += eyc[i]
+        elif ex[i] >= 720:
+            exc[i] = -0.2
+            ey[i] += eyc[i]
+
+        #Collision
+        collision = isCollision(ex[i], ey[i], bx, by)
+        if collision:
+            by = 500
+            bullet_state = "ready"
+            score += 1
+            print(score)
+            ex[i] = random.randint(0, 710)
+            ey[i] = random.randint(10, 100)
+
+        enemy(ex[i], ey[i],i)
 
     #bullet movement
     if by <= 0 :
@@ -122,16 +145,7 @@ while running:
         fire_bullet(bx, by) # ensures that the bullet keeps appearing on screen after its fired
         by -= byc
 
-    #Collision
-    collision = isCollision(ex, ey, bx, by)
-    if collision:
-        by = 500
-        bullet_state = "ready"
-        score += 1
-        print(score)
-        ex = random.randint(0, 710)
-        ey = random.randint(10, 100)
+    
 
     player(px, py)
-    enemy(ex, ey)
     pygame.display.update()
