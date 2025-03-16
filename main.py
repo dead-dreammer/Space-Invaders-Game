@@ -1,6 +1,7 @@
 import pygame
 import random
 import math
+from pygame import mixer
 
 pygame.init()
 
@@ -10,6 +11,10 @@ pygame.display.set_caption("Space Invaders")
 #background
 background = pygame.image.load("bg.jpg")
 bg_resized = pygame.transform.scale(background, (1000, 600))
+
+#background sound
+mixer.music.load("background.wav")
+mixer.music.play(-1)
 
 icon = pygame.image.load("logo.png")
 pygame.display.set_icon(icon)
@@ -44,7 +49,19 @@ bxc = 0
 byc = 1
 bullet_state = "ready"
 
-score = 0
+
+
+
+#score 
+score_value = 0
+font = pygame.font.Font("freesansbold.ttf", 32)
+
+textx = 10
+texty = 10
+
+def show_score(x, y):
+    score = font.render("Score: " + str(score_value), True, (255, 255, 255)) # typecasting changing an int into a str
+    screen.blit(score, (x, y))
 
 def fire_bullet(x, y):
     global bullet_state
@@ -98,6 +115,8 @@ while running:
                     #only if its in ready state can a bullet be fired
                     bx = px # storing px value in bx
                     fire_bullet(bx, by)
+                    bullet_sound = mixer.Sound("laser.wav")
+                    bullet_sound.play()
 
 
         if event.type == pygame.KEYUP:
@@ -129,8 +148,10 @@ while running:
         if collision:
             by = 500
             bullet_state = "ready"
-            score += 1
-            print(score)
+            score_value += 1
+            explosion = mixer.Sound("explosion.wav")
+            explosion.play()
+          
             ex[i] = random.randint(0, 710)
             ey[i] = random.randint(10, 100)
 
@@ -148,4 +169,5 @@ while running:
     
 
     player(px, py)
+    show_score(textx, texty)
     pygame.display.update()
