@@ -24,6 +24,23 @@ ey = random.randint(50, 150)
 exc = 0.2 
 eyc = 40
 
+# bullet
+# read - you cant see the bullet on screen
+# fire - the bullet is currently moving
+bulletimg = pygame.image.load("missile.png")
+bx = 0
+by = 500
+bxc = 0
+byc = 0.5
+bullet_state = "ready"
+
+def fire_bullet(x, y):
+    global bullet_state
+    bullet_state = "fire"
+    bulletResized  = pygame.transform.scale(bulletimg, (40, 40))
+    screen.blit(bulletResized, (x + 20, y + 10)) 
+    # adding 16 and 10 makes the bullet come out of the centre of the spaceship
+
 new_width = 80
 new_height = 80
 image_resized = pygame.transform.scale(playerimg, (new_width, new_height))
@@ -56,10 +73,19 @@ while running:
             if event.key == pygame.K_RIGHT:
                 print("right arrow is pressed")
                 pc = 0.2
+
+            if event.key == pygame.K_SPACE:
+                if bullet_state is "ready":
+                    #only if its in ready state can a bullet be fired
+                    bx = px # storing px value in bx
+                    fire_bullet(bx, by)
+
+
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 pc = 0 # stop the ship once the key is released
                 print("Keystroke has been released")
+        
 
     px += pc
     # adding boundary to space ship
@@ -76,6 +102,15 @@ while running:
     elif ex >= 720:
         exc = -0.2
         ey += eyc
+
+    #bullet movement
+    if by <= 0 :
+        by = 500
+        bullet_state = "ready"
+
+    if bullet_state is "fire":
+        fire_bullet(bx, by) # ensures that the bullet keeps appearing on screen after its fired
+        by -= byc
 
     player(px, py)
     enemy(ex, ey)
